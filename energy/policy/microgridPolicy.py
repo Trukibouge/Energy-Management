@@ -60,7 +60,7 @@ class MicrogridPolicy():
 
         generation = self.microgrid.getCurrentGeneration();
         consumption = self.microgrid.getCurrentConsumption();
-        storage = self.microgrid.getCurrentStorageGeneration();
+        storage = self.microgrid.storage.stateOfCharge;
 
         state = (generation, consumption, storage);
         return np.array(state);
@@ -74,7 +74,7 @@ class MicrogridPolicy():
         
         #In this example we stop when the simulation reaches the 50th time step
         print("Generation/Consumption/Storage:", self.computeState()[0], " ", self.computeState()[1], " ", self.computeState()[2])
-        return bool(self.microgrid.clock.getCurrentTimeStep() >=50);
+        return bool(self.microgrid.clock.getCurrentTimeStep() >=50 or self.microgrid.storage.isStateOfChargeCoherent() == False);
 
     def computeReward(self, done):
         """
