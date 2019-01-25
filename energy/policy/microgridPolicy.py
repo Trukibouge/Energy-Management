@@ -28,7 +28,7 @@ class MicrogridPolicy():
 		This method initializes the state of actions, it must return a spaces.Discrete space with a given number of values
         In the example we suppose, there are two possible actions
         """
-        return spaces.Discrete(2);#Put here the right value
+        return spaces.Discrete(3);#Put here the right value
 
     def createObservationSpace(self):
         """
@@ -39,12 +39,14 @@ class MicrogridPolicy():
         """
         
         low = np.array([
-            0.3#lower limit of the observed variable number 1
-            ,0#lowerlimit of the observed variable number 2
+            0, #lower limit of the observed variable number 1
+            0, #lowerlimit of the observed variable number 2
+            0
             ])
         high = np.array([
-            10.5#upper limit of the observed variable number 1
-            ,1000#upper limit of the observed variable number 2
+            10000, #upper limit of the observed variable number 1
+            10000, #upper limit of the observed variable number 2
+            10000
             ])
         return spaces.Box(low=low, high=high, dtype=np.float32)
 
@@ -55,9 +57,10 @@ class MicrogridPolicy():
         -- var1 varies in the interval [0.3, 10.5], 
         -- var2 varies in the interval [0.0, 1000]
         """
-        var1 = 5.0;
-        var2 = 200;
-        state = (var1, var2);
+        available_energy = self.microgrid.getCurrentStorageGeneration();
+        produced_energy = self.microgrid.getCurrentGeneration();
+        energy_consumption = self.microgrid.getCurrentConsumption();
+        state = (available_energy, produced_energy, energy_consumption);
         return np.array(state);
 
 
@@ -69,7 +72,7 @@ class MicrogridPolicy():
         
         #In this example we stop when the simulation reaches the 50th time step
 
-        return bool(self.microgrid.clock.getCurrentTimeStep() >=50);
+        return bool(self.microgrid.clock.getCurrentTimeStep() >=50 or self.computeState()[1] == 0);
 
     def computeReward(self, done):
         """
