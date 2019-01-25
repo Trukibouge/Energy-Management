@@ -28,7 +28,7 @@ class MicrogridPolicy():
 		This method initializes the state of actions, it must return a spaces.Discrete space with a given number of values
         In the example we suppose, there are two possible actions
         """
-        return spaces.Discrete(2);#Put here the right value
+        return spaces.Discrete(3);
 
     def createObservationSpace(self):
         """
@@ -39,12 +39,14 @@ class MicrogridPolicy():
         """
         
         low = np.array([
-            0.3#lower limit of the observed variable number 1
-            ,0#lowerlimit of the observed variable number 2
+            0,
+            0,
+            0
             ])
         high = np.array([
-            10.5#upper limit of the observed variable number 1
-            ,1000#upper limit of the observed variable number 2
+            10,
+            10,
+            10
             ])
         return spaces.Box(low=low, high=high, dtype=np.float32)
 
@@ -55,9 +57,12 @@ class MicrogridPolicy():
         -- var1 varies in the interval [0.3, 10.5], 
         -- var2 varies in the interval [0.0, 1000]
         """
-        var1 = 5.0;
-        var2 = 200;
-        state = (var1, var2);
+
+        generation = self.microgrid.getCurrentGeneration();
+        consumption = self.microgrid.getCurrentConsumption();
+        storage = self.microgrid.getCurrentStorageGeneration();
+
+        state = (generation, consumption, storage);
         return np.array(state);
 
 
@@ -68,7 +73,7 @@ class MicrogridPolicy():
         """
         
         #In this example we stop when the simulation reaches the 50th time step
-
+        print("Generation/Consumption/Storage:", self.computeState()[0], " ", self.computeState()[1], " ", self.computeState()[2])
         return bool(self.microgrid.clock.getCurrentTimeStep() >=50);
 
     def computeReward(self, done):
@@ -93,13 +98,14 @@ class MicrogridPolicy():
         if action == 0:
             #do something
             self.microgrid.storage.iddle(); #asks the storage to do nothing; change for the good action
-        else:
-            if action == 1:
+        elif action == 1:
                 #do something else
-                self.microgrid.storage.iddle(); #asks the storage to do nothing; change for the good action
-            else:
-                #It should never happense
-                raise('Unknown action ' + str(action));
+                self.microgrid.storage.charge();
+        elif action == 2:
+                self.microgrid.storage.discharge();
+        else:
+            #It should never happense
+            raise('Unknown action ' + str(action));
 
 
 
