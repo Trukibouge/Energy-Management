@@ -60,7 +60,9 @@ class MicrogridPolicy():
 
         generation = self.microgrid.getCurrentGeneration();
         consumption = self.microgrid.getCurrentConsumption();
-        storage = self.microgrid.storage.stateOfCharge;
+        #storage = self.microgrid.storage.stateOfCharge;
+
+        storage = self.microgrid.getCurrentStorageGeneration();
 
         state = (generation, consumption, storage);
         return np.array(state);
@@ -84,6 +86,9 @@ class MicrogridPolicy():
         if not done:
             #still alive
             reward = 10;
+            if (sum(self.computeState()) < 0.5 and sum(self.computeState()) > -0.5 ):
+                reward = 20;
+ 
         else:
             #bad, something went wrong
             reward = -10;
