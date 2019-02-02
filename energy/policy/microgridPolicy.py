@@ -103,7 +103,7 @@ class MicrogridPolicy():
            #Objectifs 1 et 2
             if(self.computeState()[2]>0): #Goal 1: increase energy sales
                 reward = reward + 10;
-            if(self.computeState()[2]<0 and self.computeState()[0]>0.1): #Goal 2: maximization of consumption of local generated energy
+            elif(self.computeState()[2]<0 and self.computeState()[0]>0.1): #Goal 2: maximization of consumption of local generated energy
                 reward = reward + 25;
             elif(self.computeState()[2]<0 and self.computeState()[0]<=0.1): #Goal 2: maximization of consumption of local generated energy
                 reward = reward - 100;
