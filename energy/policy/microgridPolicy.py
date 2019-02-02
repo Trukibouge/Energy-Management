@@ -86,12 +86,31 @@ class MicrogridPolicy():
         if not done:
             #still alive
             reward = 10;
-            if (sum(self.computeState()) < 0.5 and sum(self.computeState()) > -0.5 ):
-                reward = 20;
- 
+            
+            #Réponse aux besoins en énergie
+            if(self.computeState()[1] > self.computeState()[0]):
+                if(self.computeState()[2] > 0):
+                    reward = reward + 50;
+                else:
+                    reward = reward - 15;
+
+            else:
+                if(self.computeState()[2] < 0):
+                    reward = reward + 50;
+                else:
+                    reward = reward - 15;
+
+           #Objectifs 1 et 2
+            if(self.computeState()[2]>0): #Goal 1: increase energy sales
+                reward = reward + 10;
+            if(self.computeState()[2]<0 and self.computeState()[0]>0.1): #Goal 2: maximization of consumption of local generated energy
+                reward = reward + 25;
+            elif(self.computeState()[2]<0 and self.computeState()[0]<=0.1): #Goal 2: maximization of consumption of local generated energy
+                reward = reward - 100;
+
         else:
             #bad, something went wrong
-            reward = -10;
+            reward = - 200;
         return reward
 
 
@@ -102,7 +121,7 @@ class MicrogridPolicy():
         """
         if action == 0:
             #do something
-            self.microgrid.storage.iddle(); #asks the storage to do nothing; change for the good action
+           self.microgrid.storage.iddle(); #asks the storage to do nothing; change for the good action
         elif action == 1:
                 #do something else
                 self.microgrid.storage.charge();
