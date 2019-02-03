@@ -76,7 +76,7 @@ class MicrogridPolicy():
         
         #In this example we stop when the simulation reaches the 50th time step
         print("Generation/Consumption/Storage:", self.computeState()[0], " ", self.computeState()[1], " ", self.computeState()[2])
-        return bool(self.microgrid.clock.getCurrentTimeStep() >=50 or self.microgrid.storage.isStateOfChargeCoherent() == False);
+        return bool(self.microgrid.clock.getCurrentTimeStep() >=50 );
 
     def computeReward(self, done):
         """
@@ -92,21 +92,22 @@ class MicrogridPolicy():
                 if(self.computeState()[2] > 0):
                     reward = reward + 50;
                 else:
-                    reward = reward - 15;
+                    reward = reward - 25;
 
             else:
                 if(self.computeState()[2] < 0):
                     reward = reward + 50;
                 else:
-                    reward = reward - 15;
+                    reward = reward - 25;
 
            #Objectifs 1 et 2
+
             if(self.computeState()[2]>0): #Goal 1: increase energy sales
                 reward = reward + 10;
             elif(self.computeState()[2]<0 and self.computeState()[0]>0.1): #Goal 2: maximization of consumption of local generated energy
                 reward = reward + 25;
             elif(self.computeState()[2]<0 and self.computeState()[0]<=0.1): #Goal 2: maximization of consumption of local generated energy
-                reward = reward - 100;
+                reward = reward - 15;
 
         else:
             #bad, something went wrong
